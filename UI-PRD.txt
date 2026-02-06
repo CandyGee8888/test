@@ -1,0 +1,25 @@
+# 遊戲中心 PRD
+
+## 基本資訊
+
+- 網站名稱：GG Game center
+
+- 設計風格：簡約現代
+
+- 主色調： #ebeac6 + 青綠 #ABF7ED
+
+## 遊戲列表
+
+1. [Snakey] - [after eating the dot,that was my last meal]
+
+2. [Blockblast] - [don't think that you can exceed my record]
+
+3. [Tic-Tac-Toe] - [there is only 5steps left]
+
+## 頁面結構
+
+- Header：GG Game center + Play in GG Game center every game is good game
+
+- 遊戲卡片區：每張卡片包含 [遊戲名 / 簡介 / 開始按鈕]
+
+- Footer：版權資訊 + CandyGee
