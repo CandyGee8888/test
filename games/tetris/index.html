@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>方塊爆破 - GG 遊戲中心</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 遊戲中心導航欄 -->
+    <nav class="game-center-nav">
+        <a href="../../index.html" class="nav-brand">
+            <div class="nav-logo">GG</div>
+            <span class="nav-title">遊戲中心</span>
+        </a>
+        <a href="../../index.html" class="back-button">
+            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">arrow_back</span>
+            返回遊戲中心
+        </a>
+    </nav>
+
+    <div class="game-header">
+        <h1 class="game-title">方塊爆破</h1>
+        <div class="stats-bar">
+            <div class="stat-item">分數: <span id="score">0</span></div>
+            <div class="stat-item">等級: <span id="level">1</span></div>
+            <div class="stat-item">消除行數: <span id="lines">0</span></div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <!-- 遊戲區域 -->
+        <div class="game-area">
+            <canvas id="game-board"></canvas>
+            
+            <!-- 移動端虛擬控制器 (手機顯示) -->
+            <div class="mobile-controls">
+                <button class="control-button left" ontouchstart="handleMobileInput('left')" onmousedown="handleMobileInput('left')">◀</button>
+                <button class="control-button rotate" ontouchstart="handleMobileInput('rotate')" onmousedown="handleMobileInput('rotate')">↻</button>
+                <button class="control-button down" ontouchstart="handleMobileInput('down')" onmousedown="handleMobileInput('down')">▼</button>
+                <button class="control-button right" ontouchstart="handleMobileInput('right')" onmousedown="handleMobileInput('right')">▶</button>
+                <button class="control-button hard-drop" ontouchstart="handleMobileInput('hardDrop')" onmousedown="handleMobileInput('hardDrop')">↓<br>硬落</button>
+                <button class="control-button pause" ontouchstart="handleMobileInput('pause')" onmousedown="handleMobileInput('pause')">⏸<br>暫停</button>
+            </div>
+        </div>
+
+        <!-- 側邊面板 -->
+        <div class="side-panel">
+            <!-- 下一個方塊預覽 -->
+            <div class="panel-section">
+                <h3 class="panel-title">下一個方塊</h3>
+                <div id="next-piece-container">
+                    <canvas id="next-piece-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- 控制按鈕 (電腦顯示) -->
+            <div class="panel-section controls-section">
+                <h3 class="panel-title">控制</h3>
+                <div class="control-row">
+                    <button class="control-button" onclick="handleMobileInput('left')">◀</button>
+                    <button class="control-button" onclick="handleMobileInput('rotate')">↻</button>
+                    <button class="control-button" onclick="handleMobileInput('right')">▶</button>
+                </div>
+                <div class="control-row">
+                    <button class="control-button wide" onclick="handleMobileInput('down')">快速下落 ▼</button>
+                </div>
+                <div class="control-row">
+                    <button class="control-button wide" onclick="handleMobileInput('hardDrop')">硬掉落 ↓</button>
+                </div>
+                <div class="control-row">
+                    <button class="control-button wide" onclick="togglePause()">暫停 ⏸</button>
+                </div>
+            </div>
+
+            <!-- 遊戲控制 -->
+            <div class="panel-section">
+                <h3 class="panel-title">遊戲控制</h3>
+                <button class="btn" onclick="startGame()" style="width: 100%; margin-bottom: 10px;">開始遊戲</button>
+                <button class="btn" onclick="togglePause()" style="width: 100%;">暫停/繼續</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲說明 -->
+    <div class="game-instructions">
+        <h3 class="instructions-title">遊戲說明</h3>
+        <ul class="instructions-list">
+            <li>使用方向鍵或按鈕控制方塊移動</li>
+            <li>← → 鍵：左右移動方塊</li>
+            <li>↑ 鍵或旋轉按鈕：旋轉方塊</li>
+            <li>↓ 鍵：加速下落</li>
+            <li>空格鍵或硬掉落按鈕：直接落到底部</li>
+            <li>填滿一整行即可消除該行並得分</li>
+            <li>消除行數越多，分數越高</li>
+            <li>等級越高，方塊下落速度越快</li>
+            <li>當方塊堆到頂部時遊戲結束</li>
+        </ul>
+    </div>
+
+    <!-- 開始畫面 -->
+    <div id="start-screen" class="modal">
+        <div class="modal-content">
+            <h2>準備好了嗎？</h2>
+            <p>使用方向鍵或按鈕控制方塊</p>
+            <button class="btn" onclick="startGame()">開始遊戲</button>
+        </div>
+    </div>
+
+    <!-- 遊戲結束畫面 -->
+    <div id="game-over-screen" class="modal hidden">
+        <div class="modal-content">
+            <h2>遊戲結束</h2>
+            <p>最終分數: <span id="final-score">0</span></p>
+            <button class="btn" onclick="startGame()">再玩一次</button>
+        </div>
+    </div>
+
+    <!-- 暫停畫面 -->
+    <div id="pause-screen" class="modal hidden">
+        <div class="modal-content">
+            <h2>已暫停</h2>
+            <p>按 P 鍵或點擊繼續按鈕</p>
+            <button class="btn" onclick="togglePause()">繼續遊戲</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

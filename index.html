@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GG Game Center - 復古遊戲中心</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ABF7ED",
+                        "pale-yellow": "#ebeac6",  /* 根據 UI-PRD.txt 的 #ebeac6 */
+                        "deep-red": "#A50000",     /* 根據 UI-PRD.txt 的 #A50000 */
+                        "dark-brown": "#3E2723",
+                        "pixel-sky": "#87CEEB",
+                        "pixel-grass": "#4CAF50",
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #ebeac6; /* 主背景色 */
+            color: #3E2723;
+        }
+        .glass-effect {
+            background: rgba(235, 234, 198, 0.9); /* 半透明米白 */
+            backdrop-filter: blur(8px);
+            border-bottom: 2px solid #3E2723;
+        }
+        .retro-button {
+            background-color: #A50000;
+            color: #ebeac6 !important;
+            transition: all 0.1s steps(2);
+            box-shadow: 4px 4px 0px #3E2723;
+            border: 2px solid #3E2723;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .retro-button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #3E2723;
+            background-color: #bd0000;
+        }
+        .retro-button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #3E2723;
+        }
+        .pixel-scene-header {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background-color: #87CEEB;
+            overflow: hidden;
+        }
+        .pixel-grass-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 25%;
+            background-color: #4CAF50;
+            border-top: 4px solid #388E3C;
+        }
+        .pixel-tree {
+            position: absolute;
+            bottom: 25%;
+            width: 40px;
+            height: 60px;
+        }
+        .pixel-tree::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 20px;
+            background-color: #5D4037;
+        }
+        .pixel-tree::after {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: #2E7D32;
+            box-shadow: -4px 4px 0 rgba(0,0,0,0.1);
+        }
+        .pixel-cloud {
+            position: absolute;
+            background: white;
+            height: 20px;
+            width: 60px;
+            border-radius: 4px;
+            opacity: 0.8;
+        }
+        .snake-battle-bg {
+            background-color: #1a1a1a;
+            position: relative;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .snake-body {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #000;
+        }
+        .snake-1 { background-color: #4CAF50; }
+        .snake-2 { background-color: #FF5252; }
+        .snake-head-eye {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 4px;
+            height: 4px;
+            background: white;
+        }
+        .block-stack-bg {
+            background-color: #2c2c2c;
+            position: relative;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        .block-unit {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #000;
+            box-shadow: inset -4px -4px 0 rgba(0,0,0,0.2);
+        }
+        .game-card {
+            transition: all 0.2s ease;
+            border: 4px solid #3E2723;
+            background-color: #ebeac6;
+        }
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 12px 12px 0px #3E2723;
+        }
+    </style>
+</head>
+<body class="bg-pale-yellow text-dark-brown selection:bg-deep-red selection:text-pale-yellow">
+    <div class="relative flex min-h-screen w-full flex-col">
+        <!-- 導航欄 -->
+        <header class="sticky top-0 z-50 w-full glass-effect">
+            <div class="mx-auto max-w-7xl px-6 lg:px-12 flex h-20 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center bg-deep-red text-pale-yellow border-2 border-dark-brown shadow-[2px_2px_0_#3E2723]">
+                        <span class="material-symbols-outlined font-bold">sports_esports</span>
+                    </div>
+                    <span class="text-xl font-black tracking-tighter text-dark-brown">GG <span class="opacity-60">遊戲中心</span></span>
+                </div>
+                <nav class="hidden md:flex items-center gap-10">
+                    <a class="text-sm font-bold hover:text-deep-red transition-colors text-dark-brown" href="#games">遊戲列表</a>
+                    <a class="text-sm font-bold hover:text-deep-red transition-colors text-dark-brown" href="#about">關於我們</a>
+                    <a class="text-sm font-bold hover:text-deep-red transition-colors text-dark-brown" href="#stats">遊戲統計</a>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <button class="retro-button h-10 px-6 text-xs" onclick="alert('登入功能開發中')">登入</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主內容 -->
+        <main class="flex-1">
+            <!-- 英雄區域 -->
+            <section class="relative pt-20 pb-16 lg:pt-32 lg:pb-32 overflow-hidden border-b-4 border-dark-brown">
+                <div class="pixel-scene-header -z-10">
+                    <div class="pixel-cloud top-12 left-1/4"></div>
+                    <div class="pixel-cloud top-24 right-1/4 w-20"></div>
+                    <div class="pixel-tree left-[15%]"></div>
+                    <div class="pixel-tree right-[15%] scale-110 translate-y-2"></div>
+                    <div class="pixel-grass-floor"></div>
+                </div>
+                <div class="mx-auto max-w-7xl px-6 lg:px-12 relative z-10">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="inline-flex items-center gap-2 bg-pale-yellow px-4 py-1.5 mb-8 border-2 border-dark-brown shadow-[4px_4px_0_#3E2723]">
+                            <span class="flex h-2.5 w-2.5 bg-deep-red animate-pulse"></span>
+                            <span class="text-xs font-black uppercase tracking-widest text-dark-brown">網頁遊戲中心</span>
+                        </div>
+                        <h1 class="max-w-4xl text-5xl font-black tracking-tighter text-dark-brown sm:text-7xl lg:text-9xl drop-shadow-[4px_4px_0_rgba(235,234,198,1)]">
+                            GG 遊戲中心
+                        </h1>
+                        <p class="mt-8 max-w-2xl text-lg font-bold leading-relaxed text-dark-brown sm:text-xl bg-pale-yellow/60 backdrop-blur-sm p-4 rounded-lg border border-dark-brown/20">
+                            在 GG 遊戲中心，每個遊戲都是經典之作。體驗一系列極簡主義、高速經典遊戲，為現代網頁重新設計。
+                        </p>
+                        <div class="mt-12 flex flex-col items-center gap-8 sm:flex-row">
+                            <a href="#games" class="retro-button h-16 min-w-[240px] text-lg">開始遊玩</a>
+                            <button class="retro-button h-16 min-w-[240px] text-lg" onclick="alert('更多遊戲開發中')">查看所有遊戲</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 遊戲列表 -->
+            <section id="games" class="py-16 lg:py-24">
+                <div class="mx-auto max-w-7xl px-6 lg:px-12">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                        <div>
+                            <h2 class="text-3xl font-black tracking-tight text-dark-brown sm:text-5xl uppercase">精選經典遊戲</h2>
+                            <p class="mt-2 text-dark-brown font-bold text-xl opacity-80">精心挑選的極簡主義體驗</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                        <!-- Snakey 遊戲卡片 -->
+                        <div class="game-card group relative flex flex-col p-6 shadow-[8px_8px_0_#3E2723] z-20">
+                            <div class="aspect-video w-full overflow-hidden border-2 border-dark-brown relative mb-6">
+                                <div class="snake-battle-bg">
+                                    <div class="snake-body snake-1 left-[20%] top-[40%]"></div>
+                                    <div class="snake-body snake-1 left-[20%] top-[50%]"></div>
+                                    <div class="snake-body snake-1 left-[20%] top-[60%]"></div>
+                                    <div class="snake-body snake-1 left-[25%] top-[60%]"></div>
+                                    <div class="snake-body snake-1 left-[30%] top-[60%]"></div>
+                                    <div class="snake-body snake-1 left-[30%] top-[50%]">
+                                        <div class="snake-head-eye"></div>
+                                    </div>
+                                    <div class="snake-body snake-2 right-[20%] top-[30%]"></div>
+                                    <div class="snake-body snake-2 right-[25%] top-[30%]"></div>
+                                    <div class="snake-body snake-2 right-[25%] top-[40%]">
+                                        <div class="snake-head-eye"></div>
+                                    </div>
+                                    <div class="absolute w-2 h-2 bg-yellow-400 top-[20%] left-[60%]"></div>
+                                    <div class="absolute w-2 h-2 bg-yellow-400 top-[70%] left-[40%]"></div>
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center bg-dark-brown/10 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    <a href="games/snake/index.html" class="retro-button h-20 w-20 !rounded-full shadow-none hover:scale-110">
+                                        <span class="material-symbols-outlined text-5xl font-bold">play_arrow</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="px-2">
+                                <h3 class="text-4xl font-black text-dark-brown uppercase italic">貪食蛇大作戰</h3>
+                                <p class="mt-2 text-dark-brown text-lg font-bold">"蜿蜒前行，登上頂峰。"</p>
+                                <div class="mt-8 flex items-center justify-between border-t-2 border-dark-brown/10 pt-6">
+                                    <span class="flex items-center gap-2 text-sm font-black text-dark-brown uppercase">
+                                        <span class="material-symbols-outlined text-deep-red font-bold">trending_up</span> 4.8 評分
+                                    </span>
+                                    <a href="games/snake/index.html" class="retro-button px-8 py-3 text-sm">立即遊玩</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Blockblast 遊戲卡片 -->
+                        <div class="game-card group relative flex flex-col p-6 shadow-[8px_8px_0_#3E2723] z-10">
+                            <div class="aspect-video w-full overflow-hidden border-2 border-dark-brown relative mb-6">
+                                <div class="block-stack-bg">
+                                    <div class="block-unit bg-blue-500 bottom-0 left-[20%]"></div>
+                                    <div class="block-unit bg-blue-500 bottom-0 left-[28%]"></div>
+                                    <div class="block-unit bg-blue-500 bottom-0 left-[36%]"></div>
+                                    <div class="block-unit bg-blue-500 bottom-0 left-[44%]"></div>
+                                    <div class="block-unit bg-orange-500 bottom-0 left-[60%]"></div>
+                                    <div class="block-unit bg-orange-500 bottom-0 left-[68%]"></div>
+                                    <div class="block-unit bg-purple-500 bottom-[24px] left-[36%]"></div>
+                                    <div class="block-unit bg-purple-500 bottom-[24px] left-[44%]"></div>
+                                    <div class="block-unit bg-purple-500 bottom-[48px] left-[44%]"></div>
+                                    <div class="block-unit bg-purple-500 bottom-[72px] left-[44%]"></div>
+                                    <div class="block-unit bg-red-500 top-[20%] left-[50%]"></div>
+                                    <div class="block-unit bg-red-500 top-[20%] left-[58%]"></div>
+                                    <div class="block-unit bg-red-500 top-[29%] left-[58%]"></div>
+                                    <div class="block-unit bg-red-500 top-[29%] left-[66%]"></div>
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center bg-dark-brown/10 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                    <a href="games/tetris/index.html" class="retro-button h-20 w-20 !rounded-full shadow-none hover:scale-110">
+                                        <span class="material-symbols-outlined text-5xl font-bold">play_arrow</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="px-2">
+                                <h3 class="text-4xl font-black text-dark-brown uppercase italic">方塊爆破</h3>
+                                <p class="mt-2 text-dark-brown text-lg font-bold">"邏輯與高速幾何的碰撞。"</p>
+                                <div class="mt-8 flex items-center justify-between border-t-2 border-dark-brown/10 pt-6">
+                                    <span class="flex items-center gap-2 text-sm font-black text-dark-brown uppercase">
+                                        <span class="material-symbols-outlined text-deep-red font-bold">bolt</span> 1.2k 在線
+                                    </span>
+                                    <a href="games/tetris/index.html" class="retro-button px-8 py-3 text-sm">立即遊玩</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 遊戲統計 -->
+            <section id="stats" class="py-16 border-y-4 border-dark-brown bg-white/40">
+                <div class="mx-auto max-w-7xl px-6 lg:px-12">
+                    <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+                        <div class="text-center md:text-left border-l-4 border-deep-red pl-6">
+                            <p class="text-xs font-black text-dark-brown uppercase tracking-widest opacity-60">活躍玩家</p>
+                            <p class="mt-1 text-5xl font-black text-dark-brown italic">1.2k</p>
+                        </div>
+                        <div class="text-center md:text-left border-l-4 border-deep-red pl-6">
+                            <p class="text-xs font-black text-dark-brown uppercase tracking-widest opacity-60">遊戲數量</p>
+                            <p class="mt-1 text-5xl font-black text-dark-brown italic">2</p>
+                        </div>
+                        <div class="text-center md:text-left border-l-4 border-deep-red pl-6">
+                            <p class="text-xs font-black text-dark-brown uppercase tracking-widest opacity-60">快樂玩家</p>
+                            <p class="mt-1 text-5xl font-black text-dark-brown italic">10k+</p>
+                        </div>
+                        <div class="text-center md:text-left border-l-4 border-deep-red pl-6">
+                            <p class="text-xs font-black text-dark-brown uppercase tracking-widest opacity-60">平均遊玩</p>
+                            <p class="mt-1 text-5xl font-black text-dark-brown italic">45分鐘</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 關於我們 -->
+            <section id="about" class="py-16 lg:py-24">
+                <div class="mx-auto max-w-7xl px-6 lg:px-12">
+                    <h2 class="text-3xl font-black tracking-tight text-dark-brown sm:text-5xl uppercase mb-8">關於 GG 遊戲中心</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-lg text-dark-brown mb-4">
+                                GG 遊戲中心致力於提供最經典、最有趣的網頁遊戲體驗。我們將經典遊戲重新設計，適應現代網頁技術，讓玩家可以在任何設備上享受遊戲樂趣。
+                            </p>
+                            <p class="text-lg text-dark-brown">
+                                我們的遊戲無需下載，無需註冊，點擊即玩。所有遊戲都經過精心優化，確保在手機、平板和電腦上都有流暢的體驗。
+                            </p>
+                        </div>
+                        <div class="bg-pale-yellow border-4 border-dark-brown p-6 shadow-[8px_8px_0_#3E2723]">
+                            <h3 class="text-2xl font-black text-dark-brown mb-4">遊戲特色</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-deep-red">check_circle</span>
+                                    <span class="text-dark-brown font-bold">完全免費遊玩</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-deep-red">check_circle</span>
+                                    <span class="text-dark-brown font-bold">無需下載安裝</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-deep-red">check_circle</span>
+                                    <span class="text-dark-brown font-bold">支援手機與電腦</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-deep-red">check_circle</span>
+                                    <span class="text-dark-brown font-bold">經典遊戲重製</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 頁尾 -->
+        <footer class="mt-auto border-t-4 border-dark-brown bg-pale-yellow py-12">
+            <div class="mx-auto max-w-7xl px-6 lg:px-12">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center bg-deep-red text-pale-yellow border-2 border-dark-brown">
+                            <span class="material-symbols-outlined text-base">sports_esports</span>
+                        </div>
+                        <span class="text-sm font-black tracking-tight text-dark-brown uppercase">GG 遊戲中心</span>
+                    </div>
+                    <div class="flex gap-8 text-sm font-black text-dark-brown/70 uppercase">
+                        <a class="hover:text-deep-red transition-colors" href="#">隱私政策</a>
+                        <a class="hover:text-deep-red transition-colors" href="#">使用條款</a>
+                        <a class="hover:text-deep-red transition-colors" href="#">聯絡我們</a>
+                    </div>
+                    <p class="text-xs text-dark-brown font-black uppercase tracking-tighter opacity-50">
+                        © 2024 GG 遊戲中心. 保留所有權利.
+                    </p>
+                </div>
+                <div class="mt-8 text-center text-xs text-dark-brown/50">
+                    <p>Play in GG Game center every game is good game.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 簡單的互動功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 遊戲卡片點擊效果
+            const gameCards = document.querySelectorAll('.game-card');
+            gameCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.closest('a')) {
+                        const playLink = this.querySelector('a[href*="games/"]');
+                        if (playLink) {
+                            playLink.click();
+                        }
+                    }
+                });
+            });
+
+            // 導航平滑滾動
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#') {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

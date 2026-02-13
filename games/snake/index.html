@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>貪食蛇大作戰 - GG 遊戲中心</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 遊戲中心導航欄 -->
+    <nav class="game-center-nav">
+        <a href="../../index.html" class="nav-brand">
+            <div class="nav-logo">GG</div>
+            <span class="nav-title">遊戲中心</span>
+        </a>
+        <a href="../../index.html" class="back-button">
+            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">arrow_back</span>
+            返回遊戲中心
+        </a>
+    </nav>
+
+    <div class="game-header">
+        <h1 class="game-title">貪食蛇大作戰</h1>
+        <div class="stats-bar">
+            <div class="stat-item">分數: <span id="score">0</span></div>
+            <div class="stat-item">最高分: <span id="high-score">0</span></div>
+        </div>
+    </div>
+
+    <main>
+        <div id="game-container">
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- 開始畫面 -->
+            <div id="start-screen" class="modal">
+                <h2>準備好了嗎？</h2>
+                <p>使用方向鍵或按鈕控制蛇移動</p>
+                <button class="btn" onclick="startGame()">開始遊戲</button>
+            </div>
+
+            <!-- 遊戲結束畫面 -->
+            <div id="game-over-screen" class="modal hidden">
+                <h2>遊戲結束</h2>
+                <p>最終得分: <span id="final-score">0</span></p>
+                <button class="btn" onclick="startGame()">再玩一次</button>
+            </div>
+            
+             <!-- 暫停畫面 -->
+             <div id="pause-screen" class="modal hidden">
+                <h2>已暫停</h2>
+                <p>按空白鍵繼續</p>
+                <button class="btn" onclick="togglePause()">繼續</button>
+            </div>
+        </div>
+
+        <div class="controls-info">
+            電腦：使用 ↑ ↓ ← → 移動，空白鍵暫停<br>
+            手機：使用下方虛擬按鍵控制
+        </div>
+
+        <!-- 虛擬手把 (適用於手機) -->
+        <div class="d-pad">
+            <div class="d-btn up" ontouchstart="handleMobileInput('ArrowUp')" onmousedown="handleMobileInput('ArrowUp')">▲</div>
+            <div class="d-btn left" ontouchstart="handleMobileInput('ArrowLeft')" onmousedown="handleMobileInput('ArrowLeft')">◀</div>
+            <div class="d-btn down" ontouchstart="handleMobileInput('ArrowDown')" onmousedown="handleMobileInput('ArrowDown')">▼</div>
+            <div class="d-btn right" ontouchstart="handleMobileInput('ArrowRight')" onmousedown="handleMobileInput('ArrowRight')">▶</div>
+        </div>
+
+        <!-- 遊戲說明 -->
+        <div class="game-instructions">
+            <h3 class="instructions-title">遊戲說明</h3>
+            <ul class="instructions-list">
+                <li>控制蛇移動並吃掉食物（藍色光點）</li>
+                <li>每吃一個食物得10分，蛇身會變長</li>
+                <li>避免撞到牆壁或自己的身體</li>
+                <li>遊戲速度會隨著分數增加而加快</li>
+                <li>暫停遊戲：按空白鍵或點擊暫停按鈕</li>
+            </ul>
+        </div>
+    </main>
+
+    <script src="game.js"></script>
+</body>
+</html>

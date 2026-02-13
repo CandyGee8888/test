@@ -1,0 +1,311 @@
+/* 貪食蛇遊戲樣式 */
+:root {
+    --bg-color: #1a1a2e;
+    --grid-color: #16213e;
+    --snake-color: #0f3460;
+    --snake-head: #e94560;
+    --food-color: #4effef;
+    --text-color: #ffffff;
+    --accent-color: #e94560;
+    --modal-bg: rgba(26, 26, 46, 0.95);
+    --game-center-bg: #ebeac6;
+    --game-center-red: #A50000;
+    --game-center-brown: #3E2723;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none; /* 防止手機上長按選取文字 */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* 遊戲中心導航欄 */
+.game-center-nav {
+    width: 100%;
+    background-color: var(--game-center-bg);
+    border-bottom: 4px solid var(--game-center-brown);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.nav-logo {
+    width: 36px;
+    height: 36px;
+    background-color: var(--game-center-red);
+    color: var(--game-center-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--game-center-brown);
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.nav-title {
+    color: var(--game-center-brown);
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.back-button {
+    background-color: var(--game-center-red);
+    color: var(--game-center-bg);
+    border: 2px solid var(--game-center-brown);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.1s;
+    box-shadow: 2px 2px 0 var(--game-center-brown);
+}
+
+.back-button:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--game-center-brown);
+}
+
+.back-button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--game-center-brown);
+}
+
+/* 遊戲標題區域 */
+.game-header {
+    text-align: center;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.game-title {
+    font-size: 2.2rem;
+    text-shadow: 0 0 10px var(--accent-color);
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.stats-bar {
+    display: flex;
+    gap: 20px;
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.stat-item span {
+    font-weight: bold;
+    color: var(--food-color);
+}
+
+/* 遊戲容器 */
+#game-container {
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    border: 2px solid #333;
+    border-radius: 4px;
+    background-color: var(--grid-color);
+    margin: 0 auto;
+}
+
+canvas {
+    display: block;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px; /* 對應 grid size */
+}
+
+/* 控制說明與虛擬按鍵 */
+.controls-info {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+    max-width: 800px;
+}
+
+.d-pad {
+    display: none; /* 預設隱藏，在小螢幕顯示 */
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(2, 60px);
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.d-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.d-btn:active {
+    background: var(--accent-color);
+}
+
+.d-btn.up { grid-column: 2; grid-row: 1; }
+.d-btn.left { grid-column: 1; grid-row: 2; }
+.d-btn.down { grid-column: 2; grid-row: 2; }
+.d-btn.right { grid-column: 3; grid-row: 2; }
+
+/* 模態框 (開始/結束畫面) */
+.modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    backdrop-filter: blur(5px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal h2 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+.modal p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--accent-color);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px var(--accent-color);
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+/* 遊戲說明 */
+.game-instructions {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    max-width: 800px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.instructions-title {
+    color: var(--food-color);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.instructions-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.instructions-list li {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.instructions-list li:before {
+    content: "•";
+    color: var(--accent-color);
+    position: absolute;
+    left: 0;
+}
+
+/* 響應式調整 */
+@media (max-width: 600px) {
+    .game-title { font-size: 1.8rem; }
+    .stats-bar { 
+        font-size: 1rem; 
+        padding: 6px 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .d-pad { display: grid; }
+    .controls-info { display: none; } /* 手機上隱藏鍵盤說明 */
+    
+    #game-container {
+        width: 95vw;
+        height: 95vw;
+        max-width: 400px;
+        max-height: 400px;
+    }
+    
+    canvas {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+    #game-container {
+        width: 500px;
+        height: 500px;
+    }
+}
+
+@media (min-width: 901px) {
+    #game-container {
+        width: 600px;
+        height: 600px;
+    }
+    
+    canvas {
+        width: 600px;
+        height: 600px;
+    }
+}
